@@ -6,20 +6,24 @@ import User from './User';
 const StyledMembers = {
     MemberInput : styled.input`
         align-self: center;
-        background: url("https://static.thenounproject.com/png/101791-200.png") no-repeat left;
+        padding: 10px;
+        padding-left: 1.5em;
+        background-image: url('https://www.seekpng.com/png/full/920-9209972_magnifying-glass-png-white-search-icon-white-png.png');
+        background-repeat: no-repeat;
+        background-position: -1.2em;
+        outline: 0;
         background-color: #313A46;
-        background-size: 20px;
-        font-size:20px;
+        background-size: 1em;
+        font-size:22px;
         background-origin: content-box, padding-box;
-        padding-left: 22px;
         border-style: none;
         outline: none;
-        padding:10px 10px 10px 22px;
-        width:20%;
+        width:30%;
         color:rgba(255, 255, 255, .6);
         font-family:Montserrat,sans-serif;
-        &:input:focus {
-            color:red;
+        margin-bottom:1%;
+        @media (max-width: 768px){
+            font-size:12px;
         }
     `,
     Container : styled.div`
@@ -31,11 +35,16 @@ const StyledMembers = {
     `,
     CurrentImage : styled.img`
         align-self: center;
+        width:20%;
+        height:20%;
+        padding:2px;
+        border: 1px solid black;
+        margin-bottom: 2%;
     `,
     MemberTable : styled.table`
         table-layout: fixed ;
         margin: 0 auto;
-        width: 40% ;
+        width: 70% ;
         column-gap: 9px;
         font-family: Montserrat,sans-serif;
         border-collapse: collapse;
@@ -46,6 +55,38 @@ const StyledMembers = {
     `,
     Th : styled.th`
         border-bottom: 1px solid rgba(255, 255, 255, .3);
+        font-weight: 200;
+        padding-bottom:10px;
+        @media (max-width: 768px){
+            font-size:12px;
+        }
+    `,
+    AddToMember: styled.button`
+        margin-top:3%
+        margin-bottom:3%;
+        align-self: center;
+        background-color: #8EECD8;
+        width:fit-content;
+        font-family: Montserrat,sans-serif;
+        font-weight: bold;
+        line-height: 3em;
+        border-radius: 6px;
+        border:none;
+        font-size: 16px;
+        padding:5px 3px;
+        @media (max-width: 768px){
+            font-size:12px;
+            padding:3px 1px;
+        }
+    `,
+    AddToMemberIcon : styled.img`
+        width:1.2em;
+        heigh:1.2em;
+        align-self: center;
+        margin-right: 0.4em;    
+    `,
+    Thead : styled.thead`
+        margin-bottom:10px;
     `
 }
 
@@ -64,36 +105,36 @@ interface MemberType {
 
 const Members : React.FC = () => {
 
-    const [currentMember,setCurrentMember] = useState({
-        imgLink : "https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/A_black_image.jpg/1280px-A_black_image.jpg", 
-        fullName : "Custom Member", 
-        watchlist : "No List"
-    });  
+    const [currentMember,setCurrentMember] = useState("https://images.unsplash.com/photo-1580894908361-967195033215?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8b2ZmaWNlJTIwd29ya2VyfGVufDB8fDB8fA%3D%3D&w=1000&q=80");  
     const [searchField,setSearchField] = useState("")
-    const [members,setMembers] = useState<{imgLink: string,watchlist: string, fullName: string}[]>([])
-    const [membersSearched,setMembersSearched] = useState<{imgLink: string,watchlist: string, fullName: string}[]>([])
+    const [members,setMembers] = useState<{ fullName: string,imgLink: string,watchlist: string, id: number}[]>([])
+    const [membersSearched,setMembersSearched] = useState<{imgLink: string,watchlist: string, fullName: string, id: number}[]>([])
     const [membersDynamic,setMembersDynamic] = useState<JSX.Element[] | null>(null)
-    
-    function updateInput(input : string) {
+    const [isInitialRender,setInitialRender] = useState<boolean>(true)
+    function search(input : string) {
         const filtered = members.filter(member => {
          return member.fullName.toLowerCase().includes(input.toLowerCase())
         })
         setMembersSearched(filtered);
-    }   //search function fullname
+    }   //search function by fullname
 
-    function memberList(membersToTransform: {imgLink: string,watchlist: string, fullName: string}[]){
+    function memberList(membersToTransform: {imgLink: string,watchlist: string, fullName: string, id: number}[]){
         let temp: JSX.Element[] = [];
         membersToTransform.forEach((member) => {
-            temp.push(<User imgLink={member.imgLink} watchlist={member.watchlist} fullName={member.fullName} />)
+            temp.push(<User  key={member.id} imgLink={member.imgLink} watchlist={member.watchlist} fullName={member.fullName} />)
         })
-        console.log("HERE")
-        setMembersDynamic(temp);
+        setMembersDynamic(temp)
     }
 
     function handleAddMember(){
-        //let x = document.querySelector('input:checked').value;
-    }
+        
+        var checkedMember = (document.querySelector('input[name = "radios"]:checked')  as HTMLInputElement).value;
+        setCurrentMember(checkedMember)
+    }   
 
+    function handleKeyDown() {
+        setSearchField((document.getElementById("member-search") as HTMLInputElement).value)
+    }
     useEffect(() => {
         const memberListInit = async() => {
             let memberJSONList = [];
@@ -105,17 +146,17 @@ const Members : React.FC = () => {
                     imgLink: data[i].imageURL,
                     fullName: data[i].fullName,
                     watchlist: data[i].watchlistName,
-                    watchlistId : data[i].watchlistId
+                    watchlistId : data[i].watchlistId,
+                    id:data[i].id
                   };
                   memberJSONList.push(cMember); 
                 }
                 setMembers(memberJSONList);
+                memberList(memberJSONList)
             }catch (err){
                 console.log(err);
             }
-            memberList(members);
         }
-        
         memberListInit();
     },[]) //useEffect used on initial render which inits the members from the server
 
@@ -124,32 +165,33 @@ const Members : React.FC = () => {
             memberList(members)
         }
         else{
-            updateInput(searchField)
-            memberList(membersSearched)
+            search(searchField)
+            memberList(membersSearched);
         }
-    }) //useEffect used every re-render
+    },[searchField]) //useEffect used on searchField changes
+
+    
   
     return (
         <StyledMembers.Container>
             <TopBar/>
-            <StyledMembers.CurrentImage width="20%" height="20%" src={currentMember.imgLink}/>
-            <StyledMembers.MemberInput type="text" id="member-search" onChange={(e) => setSearchField(e.target.value)} name="s"/>
+            <StyledMembers.CurrentImage  src={currentMember}/>
+            <StyledMembers.MemberInput type="text" id="member-search" onKeyDown={(e) => { if (e.key === 'Backspace') {handleKeyDown()}}} onChange={(e) => setSearchField(e.target.value)} name="s"/>
             <StyledMembers.TableDiv>
                 <StyledMembers.MemberTable className="table table-hover">
-                    <thead>
+                    <StyledMembers.Thead>
                         <tr>
                             <StyledMembers.Th>   </StyledMembers.Th>
-                            
-                            <StyledMembers.Th>Full Name</StyledMembers.Th>
-                            <StyledMembers.Th>Watchlist</StyledMembers.Th>
+                            <StyledMembers.Th>FULL NAME</StyledMembers.Th>
+                            <StyledMembers.Th>WATCHLIST</StyledMembers.Th>
                         </tr>
-                    </thead>
+                    </StyledMembers.Thead>
                     <tbody>
                         {membersDynamic}
                     </tbody>
                 </StyledMembers.MemberTable>
             </StyledMembers.TableDiv>
-            <button onClick={handleAddMember}>Add to member</button>
+            <StyledMembers.AddToMember onClick={handleAddMember}><StyledMembers.AddToMemberIcon src="https://pic.onlinewebfonts.com/svg/img_509408.png"/>ADD TO MEMBER</StyledMembers.AddToMember>
         </StyledMembers.Container>
     );
 }

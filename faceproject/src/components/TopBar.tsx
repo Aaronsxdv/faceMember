@@ -47,6 +47,9 @@ const StyledTopBar = {
     margin:0;
     font-size: 22px;
     font-weight: 300;
+    @media (max-width: 768px){
+      font-size:16px;
+    }
     `,
     StyledLink : styled(Link)`
       color:white;

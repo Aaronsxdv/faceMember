@@ -16,6 +16,7 @@ const NewFace = {
   Person : styled.h1`
     margin-top:0;
     font-weight: 300;
+    font-size:32px;
   `,
   Span : styled.span`
     display: inline-block;
@@ -33,7 +34,6 @@ const NewFace = {
   font-size: 12px;
   font-family:Montserrat,sans-serif;
   font-weight: 300;
-  
   color:rgba(255, 255, 255, .8);
   padding: 5px 10px;
   `,
